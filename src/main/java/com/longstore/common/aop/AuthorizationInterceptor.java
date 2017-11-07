@@ -37,7 +37,12 @@ public abstract class AuthorizationInterceptor implements HandlerInterceptor {
     // 存放session的缓存
     protected RedisHandler redisHandler;
 
-    private String methodForCheckDig;
+    //是否检查登陆状态  yes：检查  no：不检查
+    private String checkLogin = "no";
+    //是否检查具有访问权限  yes：检查  no：不检查
+    private String checkSc = "no";
+    //检查表单token   yes：检查   no：不检查
+    private String checkFormToken = "no";
     private Map<String, String> head = new HashMap<String, String>();
     private Map<String, String> params = new HashMap<String, String>();
     
@@ -59,23 +64,25 @@ public abstract class AuthorizationInterceptor implements HandlerInterceptor {
             if (StringUtils.isBlank(token)) {
             	token = MD5util.digest(UUID.randomUUID().toString() + System.currentTimeMillis());
                 CookieUtil.put(response, ParamsConstants.USER_TOKEN, token, WebConfigUtil.domain());
-                request.setAttribute(ParamsConstants.USER_TOKEN, token);
             }
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
         }
-        
-        Session session = null;
         if (StringUtils.isBlank(sign)) {
             sign = request.getParameter(ParamsConstants.USER_SIGN);
         }
+        request.setAttribute(ParamsConstants.USER_TOKEN, token);
+        
+        Session session = null;
         if(StringUtils.isNotBlank(sign)) {
             session = redisHandler.get(CacheConstants.USER_SESSION_PREFIX + sign);
+            request.setAttribute(ParamsConstants.USER_SIGN, sign);
         }
         if (session != null) {
             request.setAttribute(ParamsConstants.USER_ID, session.getId());
             request.setAttribute(ParamsConstants.USER_NAME, session.getName());
             request.setAttribute(ParamsConstants.USER_AVATAR, session.getAvatar());
+            request.setAttribute(ParamsConstants.USER_PERMISSION_ALL, session.getSc());
         }
         Method method = ((HandlerMethod) handler).getMethod();
         //判断方法是否有注解
@@ -84,64 +91,54 @@ public abstract class AuthorizationInterceptor implements HandlerInterceptor {
             authorization = method.getDeclaringClass().getAnnotation(Authorization.class);
         }
         if (authorization != null ) {
-        	if ("yes".equals(authorization.checkLogin())) {
-        		if (session == null) {
-        			noLogin(request, response, handler);
-                    return false;
-                }
-			}
-        	if ("yes".equals(authorization.checkSc())) {
-        		if (session == null) {
-        			noLogin(request, response, handler);
-                    return false;
-                }
-        		if (!checSc(request, response, session)) {
-        			noSec(request, response, handler);
-                    return false;
-                }
-			}
-        	if ("yes".equals(authorization.checkFormToken())) {
-        		String formToken = request.getParameter(ParamsConstants.FORM_TOKEN);
-        		String formTokenRand = request.getParameter(ParamsConstants.FORM_TOKEN_RAND);
-            	if (StringUtils.isBlank(formToken) || StringUtils.isBlank(formTokenRand)) {
-            		noFormToken(request, response, handler);
-    				return false;
-    			}
-            	String fkkey = CacheConstants.USER_FORM_TOKEN_PREFIX + token + "_" + formTokenRand;
-                String _formToken = redisHandler.get_str(fkkey);
-                if (!formToken.equals(_formToken)) {
-            		noFormToken(request, response, handler);
-    				return false;
-    			}
-                redisHandler.remove_str(fkkey);
-			}
+        	checkLogin = authorization.checkLogin();
+        	checkSc = authorization.checkSc();
+        	checkFormToken = authorization.checkFormToken();
         }
+        if ("yes".equals(checkLogin)) {
+    		if (session == null) {
+    			noLogin(request, response);
+                return false;
+            }
+		}
+    	if ("yes".equals(checkSc)) {
+    		if (session == null) {
+    			noLogin(request, response);
+                return false;
+            }
+    		if (!checSc(request, response, session)) {
+    			noSec(request, response);
+                return false;
+            }
+		}
+    	if ("yes".equals(checkFormToken)) {
+    		String formToken = request.getParameter(ParamsConstants.FORM_TOKEN);
+    		String formTokenRand = request.getParameter(ParamsConstants.FORM_TOKEN_RAND);
+        	if (StringUtils.isBlank(formToken) || StringUtils.isBlank(formTokenRand)) {
+        		noFormToken(request, response);
+				return false;
+			}
+        	String fkkey = CacheConstants.USER_FORM_TOKEN_PREFIX + token + "_" + formTokenRand;
+            String _formToken = redisHandler.get_str(fkkey);
+            if (!formToken.equals(_formToken)) {
+        		noFormToken(request, response);
+				return false;
+			}
+            redisHandler.remove_str(fkkey);
+		}
         //判断是否需要解密加密
         boolean checkDig = false;
-        if (StringUtils.isNotBlank(methodForCheckDig)) {
-        	if (methodForCheckDig.equals("ALL") || request.getMethod().equals(methodForCheckDig)) {
-            	checkDig = true;
-    		}
-		}
         ParamsDig paramsDig = method.getAnnotation(ParamsDig.class);
         if (paramsDig == null) {//判断类是否有注解
         	paramsDig = method.getDeclaringClass().getAnnotation(ParamsDig.class);
         }
-        if (paramsDig != null) {
-        	if (StringUtils.isBlank(paramsDig.method())) {
-            	checkDig = true;
-    		}else if ("no".equals(paramsDig.method())) {
-    			checkDig = false;
-    		}else if (paramsDig.method().contains(request.getMethod())) {
-    			checkDig = true;
-    		}else{
-    			checkDig = false;
-    		}
+        if (paramsDig != null && ParamsDig.YES.equals(paramsDig.isDig())) {
+			checkDig = true;
 		}
         if (checkDig) {
         	boolean rsaQuery = request.getAttribute("is_rsa_query") == null ? false : (boolean) request.getAttribute("is_rsa_query");
             if (!rsaQuery) {
-            	noDig(request, response, handler);
+            	noDig(request, response);
                 return false;
 			}
         }
@@ -165,13 +162,24 @@ public abstract class AuthorizationInterceptor implements HandlerInterceptor {
                 response.setHeader(key, head.get(key));
             }
         }
+        modelAndView.addObject(ParamsConstants.USER_TOKEN, request.getAttribute(ParamsConstants.USER_TOKEN));
         modelAndView.addObject(ParamsConstants.USER_ID, request.getAttribute(ParamsConstants.USER_ID));
         modelAndView.addObject(ParamsConstants.USER_NAME, request.getAttribute(ParamsConstants.USER_NAME));
         modelAndView.addObject(ParamsConstants.USER_AVATAR, request.getAttribute(ParamsConstants.USER_AVATAR));
+        modelAndView.addObject(ParamsConstants.USER_PERMISSION_ALL, request.getAttribute(ParamsConstants.USER_PERMISSION_ALL));
+
+        request.removeAttribute(ParamsConstants.USER_TOKEN);
+        request.removeAttribute(ParamsConstants.USER_SIGN);
+        request.removeAttribute(ParamsConstants.USER_ID);
+        request.removeAttribute(ParamsConstants.USER_NAME);
+        request.removeAttribute(ParamsConstants.USER_AVATAR);
+        request.removeAttribute(ParamsConstants.USER_PERMISSION_ALL);
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {}
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    	
+    }
 
     /** 检查用户权限，true：检查通过，false：检查失败，调用errorForward方法进行请求转发  */
     protected abstract boolean checSc(HttpServletRequest request, HttpServletResponse response, Session session);
@@ -179,30 +187,34 @@ public abstract class AuthorizationInterceptor implements HandlerInterceptor {
     /** 
      * 页面重定向到登陆，如果ref为空，默认跳转到登陆页面。
      */
-    protected abstract void noLogin(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+    protected abstract void noLogin(HttpServletRequest request, HttpServletResponse response) throws Exception;
     
     /** 
      * 页面重定向到没有权限，如果ref为空，默认跳转到登陆页面。
      */
-    protected abstract void noSec(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+    protected abstract void noSec(HttpServletRequest request, HttpServletResponse response) throws Exception;
     
     /** 
      * form token error
      */
-    protected abstract void noFormToken(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+    protected abstract void noFormToken(HttpServletRequest request, HttpServletResponse response) throws Exception;
 
     /** 
      * dig params error
      */
-    protected abstract void noDig(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception;
+    protected abstract void noDig(HttpServletRequest request, HttpServletResponse response) throws Exception;
     
     public void setRedisHandler(RedisHandler redisHandler) {
         this.redisHandler = redisHandler;
     }
-	public void setMethodForCheckDig(String methodForCheckDig) {
-		if (StringUtils.isNotBlank(methodForCheckDig)) {
-			this.methodForCheckDig = methodForCheckDig.toUpperCase();
-		}
+	public void setCheckLogin(String checkLogin) {
+		this.checkLogin = checkLogin;
+	}
+	public void setCheckSc(String checkSc) {
+		this.checkSc = checkSc;
+	}
+	public void setCheckFormToken(String checkFormToken) {
+		this.checkFormToken = checkFormToken;
 	}
 	public void setHead(Map<String, String> head) {
 		this.head = head;

@@ -8,6 +8,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Authorization {
+	
+    public static final String YES = "yes";
+    public static final String NO = "no";
     
 	/**
      * 是否检查登陆状态

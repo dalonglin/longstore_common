@@ -13,6 +13,8 @@ public interface ParamsConstants {
     public final static String USER_SIGN = "_uufg";
     public final static String USER_TOKEN = "_viewss";
     public final static String USER_SESSION = "_session";
+    public final static String USER_PERMISSION_CURRENT = "_mysc";
+    public final static String USER_PERMISSION_ALL = "_myallsc";
     
     public final static String FORM_TOKEN = "_formtoken";
     public final static String FORM_TOKEN_RAND = "_ftrand";

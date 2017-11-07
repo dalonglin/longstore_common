@@ -11,17 +11,17 @@ public class Menu implements Serializable{
     private int id;
     /** 权限名称 */
     private String name;
-    /** 权限的值 */
-    private String value;
+    /** 权限链接 */
+    private String url;
     
     public Menu(){
         
     }
     
-    public Menu(int id, String name, String value){
+    public Menu(int id, String name, String url){
         this.id = id;
         this.name = name;
-        this.value = value;
+        this.url = url;
     }
     
     public int getId() {
@@ -36,11 +36,11 @@ public class Menu implements Serializable{
     public void setName(String name) {
         this.name = name;
     }
-    public String getValue() {
-        return value;
+    public String getUrl() {
+        return url;
     }
-    public void setValue(String value) {
-        this.value = value;
+    public void setUrl(String url) {
+        this.url = url;
     }
     
 }

@@ -1,7 +1,5 @@
 package com.longstore.common.util;
 
-import java.io.Serializable;
-
 import com.longstore.common.constants.ExceptionConstants;
 import com.longstore.common.domain.WebResult;
 
@@ -14,8 +12,8 @@ public class WebResultUtil {
      * 调用失败
      * @return 
      */
-	public static <T extends Serializable> WebResult<T> failed(){
-        WebResult<T> r = new WebResult<T>();
+	public static WebResult failed(){
+        WebResult r = new WebResult();
         r.setState(false);
         r.setCode(ExceptionConstants.ERROR_CODE_DEFAULT);
         return r;
@@ -25,8 +23,8 @@ public class WebResultUtil {
      * @param code 错误码
      * @return
      */
-    public static <T extends Serializable> WebResult<T> failed(String code){
-        WebResult<T> r = new WebResult<T>();
+    public static WebResult failed(String code){
+        WebResult r = new WebResult();
         r.setState(false);
         r.setCode(code);
         return r;
@@ -37,8 +35,8 @@ public class WebResultUtil {
      * @param msg   错误或异常信息
      * @return
      */
-    public static <T extends Serializable> WebResult<T> failed(String code, String msg){
-        WebResult<T> r = new WebResult<T>();
+    public static WebResult failed(String code, String msg){
+        WebResult r = new WebResult();
         r.setState(false);
         r.setCode(code);
         r.setMsg(msg);
@@ -48,8 +46,8 @@ public class WebResultUtil {
     /**
      * 调用成功
      */
-    public static <T extends Serializable> WebResult<T> success(T result){
-        WebResult<T> r = new WebResult<T>();
+    public static WebResult success(Object result){
+        WebResult r = new WebResult();
         r.setState(true);
         r.setResult(result);
         return r;
@@ -57,8 +55,8 @@ public class WebResultUtil {
     /**
      * 调用成功
      */
-    public static <T extends Serializable> WebResult<T> success(String code,T result){
-        WebResult<T> r = new WebResult<T>();
+    public static WebResult success(String code, Object result){
+        WebResult r = new WebResult();
         r.setCode(code);
         r.setState(true);
         r.setResult(result);

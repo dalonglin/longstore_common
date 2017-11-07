@@ -19,7 +19,7 @@ import com.longstore.common.util.JsonUtil;
 /**
  * 接口数据缓存
  */
-public class WebServiceCachingAopAdvice {
+public class WebServiceCacheAopAdvice {
 
     private RedisHandler redisHandler;
     private String prefix = "service_cahce_";
@@ -37,16 +37,13 @@ public class WebServiceCachingAopAdvice {
     }
 
     public Object doAround(ProceedingJoinPoint pjp) throws Throwable {
-        if (redisHandler == null) {
-            return pjp.proceed();
-        }
         //取得注解
         MethodSignature method = (MethodSignature)pjp.getSignature();
         Cache cache = (Cache) method.getMethod().getAnnotation(Cache.class);
         if (cache == null) {
         	cache = method.getClass().getAnnotation(Cache.class);
 		}
-        if (cache == null) {
+        if (cache == null || Cache.NO.equals(cache.isCache())) {
             return pjp.proceed();
 		}
         //指定对哪种请求进行缓存
@@ -89,7 +86,6 @@ public class WebServiceCachingAopAdvice {
         value = pjp.proceed();
         if (value != null) {
         	if (value instanceof WebResult) {
-                @SuppressWarnings("rawtypes")
 				WebResult result = (WebResult) value;
                 if (result.getState() && result.getResult() != null){
                     redisHandler.put(cacheKey, result, expire);

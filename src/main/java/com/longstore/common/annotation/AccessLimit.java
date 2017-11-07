@@ -12,6 +12,16 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AccessLimit {
     
+	public static final String YES = "yes";
+    public static final String NO = "no";
+    
+	/**
+	 * 是否进行访问限制操作
+     *   no：不需要
+     *   yes：需要
+     */
+    String isLimit() default "yes";
+    
     /**
      * ip访问单位时间内访问次数限制，默认时间单位15秒
      *   0：不限制

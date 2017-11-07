@@ -12,6 +12,16 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Cache {
     
+	public static final String YES = "yes";
+    public static final String NO = "no";
+    
+	/**
+	 * 是否进行缓存
+     *   no：不需要
+     *   yes：需要
+     */
+    String isCache() default "yes";
+    
     /**
      * 存放时间，为0不过期。单位秒。默认10分钟
      *     注意，是否生效，取决于所使用的缓存器。

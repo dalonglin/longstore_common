@@ -12,8 +12,8 @@ public class MenuTree implements Serializable{
     private int id;
     /** 权限名称 */
     private String name;
-    /** 权限的值 */
-    private String value;
+    /** 权限链接 */
+    private String url;
     /** 是否是活动的 */
     private boolean active;
     /** 子权限 */
@@ -23,10 +23,10 @@ public class MenuTree implements Serializable{
         
     }
     
-    public MenuTree(int id, String name, String value){
+    public MenuTree(int id, String name, String url){
         this.id = id;
         this.name = name;
-        this.value = value;
+        this.url = url;
     }
     
     public int getId() {
@@ -41,11 +41,11 @@ public class MenuTree implements Serializable{
     public void setName(String name) {
         this.name = name;
     }
-    public String getValue() {
-        return value;
+    public String getUrl() {
+        return url;
     }
-    public void setValue(String value) {
-        this.value = value;
+    public void setUrl(String url) {
+        this.url = url;
     }
     public boolean getActive() {
         return active;

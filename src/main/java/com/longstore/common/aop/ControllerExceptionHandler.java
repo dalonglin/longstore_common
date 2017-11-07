@@ -1,6 +1,5 @@
 package com.longstore.common.aop;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +40,7 @@ public class ControllerExceptionHandler implements HandlerExceptionResolver {
             LOGGER.error(request.getRequestURL() + "," + ex.getMessage(), ex);
         }
         //提取错误信息
-        WebResult<Serializable> result = null;
+        WebResult result = null;
         if (ex instanceof ExceptionSupper) {
             ExceptionSupper e = (ExceptionSupper)ex;
             result = WebResultUtil.failed(e.getCode(), e.getMessage());

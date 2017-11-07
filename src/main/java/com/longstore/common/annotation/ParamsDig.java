@@ -11,13 +11,15 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ParamsDig {
+	
+	public static final String YES = "yes";
+    public static final String NO = "no";
     
 	/**
-     * 对哪种请求方式进行解密操作，默认对所有方法进行加密解密
-     *     no：不对任何方法进行加密解密
-     *     空：对任何方法进行加密解密
-     *     其他：指定方法，使用大写，多个以英文逗号分隔。
+	 * 是否进行加密解密操作
+     *   no：不进行加密解密
+     *   yes：进行加密解密
      */
-    String method() default "";
+    String isDig() default "yes";
     
 }

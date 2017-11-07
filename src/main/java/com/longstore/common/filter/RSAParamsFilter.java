@@ -48,7 +48,7 @@ public class RSAParamsFilter extends AbstractFilter {
             	//二次请求校验
             	jsonKey = "request_" + MD5util.digest(json);
             	if (getCache().get(jsonKey) != null) {
-            		WebResult<String> result = WebResultUtil.failed("query_secord", "无效请求");
+            		WebResult result = WebResultUtil.failed("query_secord", "无效请求");
     	            response.getWriter().write(JsonUtil.toJson(result));
     	            return;
 				}
@@ -69,7 +69,7 @@ public class RSAParamsFilter extends AbstractFilter {
             	if (LOGGER.isInfoEnabled()) {
                 	LOGGER.info("---解密出错----p_json_dig=" + json + ", privateKey=" + rsaPk);
 				}
-				WebResult<String> result = WebResultUtil.failed("decrypt_error", "解密出错");
+				WebResult result = WebResultUtil.failed("decrypt_error", "解密出错");
 	            response.getWriter().write(JsonUtil.toJson(result));
 	            return;
             }
@@ -77,7 +77,7 @@ public class RSAParamsFilter extends AbstractFilter {
         	long _qtime = params.getLongValue("q_time");
 			_qtime = System.currentTimeMillis() - _qtime;
 			if (_qtime > 60000 || _qtime < -60000) {
-				WebResult<String> result = WebResultUtil.failed("time_out", "请求过期");
+				WebResult result = WebResultUtil.failed("time_out", "请求过期");
 	            response.getWriter().write(JsonUtil.toJson(result));
 	            return;
 			}

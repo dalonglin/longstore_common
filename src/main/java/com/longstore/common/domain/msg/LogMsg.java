@@ -1,7 +1,9 @@
 package com.longstore.common.domain.msg;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.Map;
+
+import javax.servlet.http.Cookie;
 
 /**
  * 日志消息
@@ -10,98 +12,104 @@ public class LogMsg implements Serializable{
 	private static final long serialVersionUID = 9012047040571576876L;
 
 	/**
-	 * 用户类型，1：前台，2：后台 
-	 */
-	private Integer userType;
-	/**
 	 * 用户id
 	 */
-	private Integer userId;
+	private Integer uid;
 	/**
-	 * 操作类型，view：访问，add：新加，2：up，del：删除
+	 * 操作类型，a：新加，d：删除，u：更新，v：访问
 	 */
-	private String opType;
+	private String tt;
 	/**
 	 * 被操作对象类型
 	 */
-	private String targetType;
+	private String tn;
 	/**
-	 * 被操作对象ID
+	 * 指定参数名称以提取被操作对象ID
 	 */
-	private Integer targetId;
+	private Integer tid;
 	/**
 	 * 链接，不带域名
 	 */
-	private String url;
+	private String u;
 	/**
-	 * 参数，json
+	 * 参数
 	 */
-	private String params;
+	private Map<String, String[]> p;
 	/**
 	 * cookie
 	 */
-	private String cookie;
+	private Cookie[] c;
 	/** 
 	 * 添加时间 
 	 */
-    private Date addTime;
+    private long ts;
 
 	public LogMsg() {
 	}
 
-	public Integer getUserType() {
-		return userType;
+	public Integer getUid() {
+		return uid;
 	}
-	public void setUserType(Integer userType) {
-		this.userType = userType;
+
+	public void setUid(Integer uid) {
+		this.uid = uid;
 	}
-	public Integer getUserId() {
-		return userId;
+
+	public String getTt() {
+		return tt;
 	}
-	public void setUserId(Integer userId){
-		this.userId = userId;
+
+	public void setTt(String tt) {
+		this.tt = tt;
 	}
-	public String getOpType() {
-		return opType;
+
+	public String getTn() {
+		return tn;
 	}
-	public void setOpType(String opType){
-		this.opType = opType;
+
+	public void setTn(String tn) {
+		this.tn = tn;
 	}
-	public String getTargetType() {
-		return targetType;
+
+	public Integer getTid() {
+		return tid;
 	}
-	public void setTargetType(String targetType){
-		this.targetType = targetType;
+
+	public void setTid(Integer tid) {
+		this.tid = tid;
 	}
-	public Integer getTargetId() {
-		return targetId;
+
+	public String getU() {
+		return u;
 	}
-	public void setTargetId(Integer targetId){
-		this.targetId = targetId;
+
+	public void setU(String u) {
+		this.u = u;
 	}
-	public String getUrl() {
-		return url;
+
+	public Map<String, String[]> getP() {
+		return p;
 	}
-	public void setUrl(String url){
-		this.url = url;
+
+	public void setP(Map<String, String[]> p) {
+		this.p = p;
 	}
-	public String getParams() {
-		return params;
+
+	public Cookie[] getC() {
+		return c;
 	}
-	public void setParams(String params){
-		this.params = params;
+
+	public void setC(Cookie[] c) {
+		this.c = c;
 	}
-	public String getCookie() {
-		return cookie;
+
+	public long getTs() {
+		return ts;
 	}
-	public void setCookie(String cookie){
-		this.cookie = cookie;
+
+	public void setTs(long ts) {
+		this.ts = ts;
 	}
-	public Date getAddTime() {
-		return addTime;
-	}
-	public void setAddTime(Date addTime) {
-		this.addTime = addTime;
-	}
+
     
 }

@@ -16,6 +16,5 @@ public interface FileConstants {
     public final static String CONTENT_TYPE_AUDIO_MP3 = "audio/mp3";
     public final static String CONTENT_TYPE_AUDIO_WAV = "audio/wav";
     public final static String CONTENT_TYPE_AUDIO_FLAC = "audio/flac";
-    public final static String CONTENT_TYPE_FILE = "image/jpeg";
     
 }

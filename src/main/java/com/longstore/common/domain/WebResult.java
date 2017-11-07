@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 封装接口json返回结果
  */
-public class WebResult<T extends Serializable> implements Serializable{
+public class WebResult implements Serializable{
     private static final long serialVersionUID = -6076007353896635350L;
     
     /** 
@@ -21,16 +21,16 @@ public class WebResult<T extends Serializable> implements Serializable{
     /** form表单token */
     private String formToken;
     /** 返回结果 */
-    private T result;
+    private Object result;
 
     public WebResult(){
         
     }
     
-    public T getResult() {
+    public Object getResult() {
         return result;
     }
-    public void setResult(T result) {
+    public void setResult(Object result) {
         this.result = result;
     }
     public boolean getState() {

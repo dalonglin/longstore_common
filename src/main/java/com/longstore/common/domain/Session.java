@@ -13,7 +13,7 @@ public class Session implements Serializable{
     private String name;//用户名称
     private String avatar;//用户头像
     
-    private List<Integer> scIds;//权限ID
+    private List<Integer> sc;//权限ID
 
 	public Integer getId() {
 		return id;
@@ -39,12 +39,12 @@ public class Session implements Serializable{
 		this.avatar = avatar;
 	}
 
-	public List<Integer> getScIds() {
-		return scIds;
+	public List<Integer> getSc() {
+		return sc;
 	}
 
-	public void setScIds(List<Integer> scIds) {
-		this.scIds = scIds;
+	public void setSc(List<Integer> sc) {
+		this.sc = sc;
 	}
 
 }

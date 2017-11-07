@@ -63,26 +63,25 @@ public class AccessLimitInterceptor implements HandlerInterceptor {
         if (uidC < 1 || uidT < 1) {
 			return false;
 		}
-        String sign = null;
-        String token = null;
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for(Cookie c : cookies){
-                if (c.getName().equals(ParamsConstants.USER_SIGN)) {
-                    sign = c.getValue();
-                }else if (c.getName().equals(ParamsConstants.USER_TOKEN)) {
-                	token = c.getValue();
+        String sign = (String) request.getAttribute(ParamsConstants.USER_SIGN);
+        String token = (String) request.getAttribute(ParamsConstants.USER_TOKEN);
+        if (StringUtils.isBlank(sign) || StringUtils.isBlank(token)) {
+        	Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for(Cookie c : cookies){
+                    if (c.getName().equals(ParamsConstants.USER_SIGN)) {
+                        sign = c.getValue();
+                    }else if (c.getName().equals(ParamsConstants.USER_TOKEN)) {
+                    	token = c.getValue();
+                    }
                 }
             }
-        }
-        if (StringUtils.isBlank(sign)) {
-        	sign = request.getParameter(ParamsConstants.USER_SIGN);
-		}
-        if (StringUtils.isBlank(token)) {
-        	token = request.getParameter(ParamsConstants.USER_TOKEN);
-		}
-        if (StringUtils.isBlank(token)) {
-        	token = (String) request.getAttribute(ParamsConstants.USER_TOKEN);
+            if (StringUtils.isBlank(sign)) {
+            	sign = request.getParameter(ParamsConstants.USER_SIGN);
+    		}
+            if (StringUtils.isBlank(token)) {
+            	token = request.getParameter(ParamsConstants.USER_TOKEN);
+    		}
 		}
     	//取用户信息
         Integer userId = (Integer)request.getAttribute(ParamsConstants.USER_ID);
@@ -148,7 +147,7 @@ public class AccessLimitInterceptor implements HandlerInterceptor {
     }
     private void limitMsg(HttpServletRequest request, HttpServletResponse response) throws Exception {
         if (HttpUtil.jsonRequest(request)) {//ajax 调用
-            WebResult<String> webResult = WebResultUtil.failed(ExceptionConstants.ERROR_AUTH_ACCESS_FAILED, "请慢一点");
+            WebResult webResult = WebResultUtil.failed(ExceptionConstants.ERROR_AUTH_ACCESS_FAILED, "请慢一点");
             response.getWriter().write(JsonUtil.toJson(webResult));
         } else {
             String ref = WebConfigUtil.home() + "/wait";
@@ -167,6 +166,9 @@ public class AccessLimitInterceptor implements HandlerInterceptor {
         if (accessLimit == null && (count < 1 || time < 1)) {
             return true;
         }
+        if (accessLimit != null && AccessLimit.NO.equals(accessLimit.isLimit())) {
+            return true;
+		}
         //ip访问限制
         boolean limit = ipLimit(request, response, method, accessLimit);
         if (limit) {
